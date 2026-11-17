@@ -36,77 +36,87 @@ class UpdateCard extends StatelessWidget {
       builder: (context, _) {
         final s = updater.state;
         final r = s.release;
-        if (r == null) return const SizedBox.shrink();
         final busy =
             s.phase == UpdatePhase.downloading ||
             (s.phase == UpdatePhase.installing && !s.confirming);
-        return Padding(
-          padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
-          child: Card(
-            color: context.colors.secondaryContainer,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(AppTheme.radiusCard),
-              onTap: () => showUpdateSheet(context, updater),
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
-                child: Row(
-                  children: [
-                    SizedBox.square(
-                      dimension: 34,
-                      child: switch (s.phase) {
-                        UpdatePhase.downloading => CircularProgressIndicator(
-                          value: s.progress,
-                          strokeWidth: 3,
-                        ),
-                        _ when busy => const CircularProgressIndicator(
-                          strokeWidth: 3,
-                        ),
-                        UpdatePhase.failed => Icon(
-                          Icons.error_outline,
-                          color: context.colors.onSecondaryContainer,
-                        ),
-                        _ => Icon(
-                          Icons.system_update,
-                          color: context.colors.onSecondaryContainer,
-                        ),
-                      },
-                    ),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 220),
+          transitionBuilder: (child, anim) => FadeTransition(
+            opacity: anim,
+            child: SizeTransition(sizeFactor: anim, child: child),
+          ),
+          child: r == null
+              ? const SizedBox.shrink()
+              : Material(
+                  elevation: 6,
+                  color: context.colors.secondaryContainer,
+                  shadowColor: Colors.black.withValues(alpha: .4),
+                  borderRadius: BorderRadius.circular(18),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(18),
+                    onTap: () => showUpdateSheet(context, updater),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 12, 12),
+                      child: Row(
                         children: [
-                          Text(
-                            'Update ${r.version} available',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: context.texts.titleSmall?.copyWith(
-                              fontWeight: FontWeight.w600,
-                              color: context.colors.onSecondaryContainer,
+                          SizedBox.square(
+                            dimension: 34,
+                            child: switch (s.phase) {
+                              UpdatePhase.downloading =>
+                                CircularProgressIndicator(
+                                  value: s.progress,
+                                  strokeWidth: 3,
+                                ),
+                              _ when busy => const CircularProgressIndicator(
+                                strokeWidth: 3,
+                              ),
+                              UpdatePhase.failed => Icon(
+                                Icons.error_outline,
+                                color: context.colors.onSecondaryContainer,
+                              ),
+                              _ => Icon(
+                                Icons.system_update,
+                                color: context.colors.onSecondaryContainer,
+                              ),
+                            },
+                          ),
+                          const SizedBox(width: 14),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  'Update ${r.version} available',
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: context.texts.titleSmall?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: context.colors.onSecondaryContainer,
+                                  ),
+                                ),
+                                Text(
+                                  _updateLine(s),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: context.texts.bodySmall?.copyWith(
+                                    color: context.colors.onSecondaryContainer
+                                        .withValues(alpha: .8),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          Text(
-                            _updateLine(s),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: context.texts.bodySmall?.copyWith(
-                              color: context.colors.onSecondaryContainer
-                                  .withValues(alpha: .8),
-                            ),
+                          Icon(
+                            Icons.chevron_right,
+                            color: context.colors.onSecondaryContainer,
                           ),
+			  const SizedBox(height: 14),
                         ],
                       ),
                     ),
-                    Icon(
-                      Icons.chevron_right,
-                      color: context.colors.onSecondaryContainer,
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          ),
         );
       },
     );

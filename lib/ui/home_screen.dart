@@ -6,7 +6,6 @@ import '../features/updates/app_updater.dart';
 import 'device_shell.dart';
 import 'scan_screen.dart';
 import 'theme.dart';
-import 'update_ui.dart';
 
 /// App home. Auto-connects to a bonded HD 350BT on launch and shows the device
 /// shell once connected; otherwise shows a connect prompt. A thin update banner
@@ -49,27 +48,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        UpdateCard(updater: _updater),
-        Expanded(
-          child: AnimatedBuilder(
-            animation: _conn,
-            builder: (context, _) {
-              if (_conn.isConnected) {
-                return DeviceShell(
-                  session: _conn.session!,
-                  firmware: _firmware,
-                  updater: _updater,
-                  title: 'HD 350BT',
-                  onDisconnect: _conn.disconnect,
-                );
-              }
-              return _ConnectView(conn: _conn, firmware: _firmware);
-            },
-          ),
-        ),
-      ],
+    return AnimatedBuilder(
+      animation: _conn,
+      builder: (context, _) {
+        if (_conn.isConnected) {
+          return DeviceShell(
+            session: _conn.session!,
+            firmware: _firmware,
+            updater: _updater,
+            title: 'HD 350BT',
+            onDisconnect: _conn.disconnect,
+          );
+        }
+        return _ConnectView(conn: _conn, firmware: _firmware);
+      },
     );
   }
 }

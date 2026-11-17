@@ -119,7 +119,20 @@ class _DeviceShellState extends State<DeviceShell> {
                     ),
                 ],
               ),
-        body: IndexedStack(index: _index, children: pages),
+        body: Stack(
+          children: [
+            IndexedStack(index: _index, children: pages),
+            // A floating update pill just above the bottom nav bar (not on
+            // the console tab, which has its own input row).
+            if (widget.updater != null && _index != 3)
+              Positioned(
+                left: 12,
+                right: 12,
+                bottom: 12,
+                child: UpdateCard(updater: widget.updater!),
+              ),
+          ],
+        ),
         bottomNavigationBar: NavigationBar(
           selectedIndex: _index,
           onDestinationSelected: (i) => setState(() => _index = i),
