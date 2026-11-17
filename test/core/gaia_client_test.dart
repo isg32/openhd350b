@@ -2,11 +2,11 @@ import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opensennheiser/core/gaia/gaia_client.dart';
-import 'package:opensennheiser/core/gaia/gaia_constants.dart';
-import 'package:opensennheiser/core/gaia/gaia_frame.dart';
-import 'package:opensennheiser/core/hex.dart';
-import 'package:opensennheiser/core/transport/fake_transport.dart';
+import 'package:openhd350b/core/gaia/gaia_client.dart';
+import 'package:openhd350b/core/gaia/gaia_constants.dart';
+import 'package:openhd350b/core/gaia/gaia_frame.dart';
+import 'package:openhd350b/core/hex.dart';
+import 'package:openhd350b/core/transport/fake_transport.dart';
 
 /// Replays the replies a real HD 350BT (fw 5.8.0) gave on 2026-11-16.
 List<Uint8List> hd350(Uint8List w) {

@@ -1,4 +1,4 @@
-# OpenSennheiser
+# OpenHD350B
 
 An open-source replacement for the Sennheiser **Smart Control** app, built with
 Flutter. It targets the **HD 350BT** (model SEBT3, article 300002) and other

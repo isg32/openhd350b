@@ -1,8 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opensennheiser/core/gaia/gaia_frame.dart';
-import 'package:opensennheiser/core/hex.dart';
+import 'package:openhd350b/core/gaia/gaia_frame.dart';
+import 'package:openhd350b/core/hex.dart';
 
 void main() {
   group('GaiaV2Codec — real HD 350BT bytes (fw 5.8.0)', () {

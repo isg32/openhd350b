@@ -1,4 +1,4 @@
-name: opensennheiser
+name: openhd350b
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -41,6 +41,8 @@ dependencies:
   archive: ^4.7.1
   crypto: ^3.0.8
   battery_plus: ^7.1.2
+  path_provider: ^2.1.6
+  share_plus: ^13.3.1
 
 dev_dependencies:
   flutter_test:

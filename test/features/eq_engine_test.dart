@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:opensennheiser/core/hex.dart';
-import 'package:opensennheiser/features/equalizer/eq_engine.dart';
+import 'package:openhd350b/core/hex.dart';
+import 'package:openhd350b/features/equalizer/eq_engine.dart';
 
 void main() {
   const eq = Hd350EqEngine();

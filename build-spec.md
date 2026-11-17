@@ -1,4 +1,4 @@
-# OpenSennheiser — Build Specification
+# OpenHD350B — Build Specification
 
 An open-source replacement for the **Sennheiser Smart Control** app, targeting the
 **HD 350BT (model SEBT3, article 300002)** and other Qualcomm-GAIA Sennheiser headphones.
