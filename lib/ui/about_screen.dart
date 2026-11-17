@@ -5,7 +5,7 @@ import 'components.dart';
 import 'theme.dart';
 
 /// The app version shown in About (keep in step with pubspec.yaml).
-const appVersion = '1.0.3';
+const appVersion = '1.0.4';
 
 /// A small About page: what the app is, who made it, and the licences.
 class AboutScreen extends StatelessWidget {
