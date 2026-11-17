@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../features/device/connection_controller.dart';
 import '../features/device/device_session.dart';
 import '../features/firmware/firmware_service.dart';
 import '../features/updates/app_updater.dart';
@@ -20,6 +21,7 @@ class DeviceShell extends StatefulWidget {
     required this.firmware,
     required this.title,
     this.updater,
+    this.conn,
     this.onDisconnect,
   });
 
@@ -27,6 +29,7 @@ class DeviceShell extends StatefulWidget {
   final FirmwareService firmware;
   final String title;
   final AppUpdater? updater;
+  final ConnectionController? conn;
   final VoidCallback? onDisconnect;
 
   @override
@@ -69,7 +72,11 @@ class _DeviceShellState extends State<DeviceShell> {
     final pages = [
       DashboardScreen(session: widget.session),
       EqScreen(session: widget.session),
-      FirmwareScreen(firmware: widget.firmware, session: widget.session),
+      FirmwareScreen(
+        firmware: widget.firmware,
+        session: widget.session,
+        conn: widget.conn,
+      ),
       DebugConsoleScreen(client: widget.session.client, title: widget.title),
     ];
     const titles = ['OpenHD350B', 'Equalizer', 'Firmware', 'Console'];

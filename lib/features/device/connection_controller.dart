@@ -177,6 +177,26 @@ class ConnectionController extends ChangeNotifier {
     _set(ConnectionPhase.idle);
   }
 
+  /// The connected device, for a firmware install that needs an exclusive link.
+  BluetoothDevice? get device => _transport?.device;
+
+  /// Releases the normal session so a firmware install can own the GAIA link
+  /// (only one at a time), runs [body], then reconnects. [body] gets the
+  /// device; it must fully release its own link before returning.
+  Future<T> runExclusive<T>(
+    Future<T> Function(BluetoothDevice device) body,
+  ) async {
+    final dev = device;
+    if (dev == null) throw StateError('not connected');
+    await _teardown();
+    _set(ConnectionPhase.connecting, err: 'Firmware install in progress');
+    try {
+      return await body(dev);
+    } finally {
+      await connectTo(dev);
+    }
+  }
+
   Future<void> _teardown() async {
     await _stateSub?.cancel();
     _stateSub = null;

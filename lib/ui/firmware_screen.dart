@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../features/device/connection_controller.dart';
 import '../features/device/device_session.dart';
 import '../features/firmware/firmware_models.dart';
 import '../features/firmware/firmware_service.dart';
 import 'components.dart';
+import 'firmware_install_screen.dart';
 import 'theme.dart';
 
 class FirmwareScreen extends StatefulWidget {
@@ -12,9 +14,11 @@ class FirmwareScreen extends StatefulWidget {
     super.key,
     required this.firmware,
     required this.session,
+    this.conn,
   });
   final FirmwareService firmware;
   final DeviceSession session;
+  final ConnectionController? conn;
 
   @override
   State<FirmwareScreen> createState() => _FirmwareScreenState();
@@ -147,6 +151,17 @@ class _FirmwareScreenState extends State<FirmwareScreen> {
                       _SavedTile(
                         fw: s,
                         sizeOf: _size,
+                        onInstall: (widget.conn != null && s.md5Verified)
+                            ? () => Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (_) => FirmwareInstallScreen(
+                                    conn: widget.conn!,
+                                    imagePath: s.imagePath,
+                                    version: s.version,
+                                  ),
+                                ),
+                              )
+                            : null,
                         onShare: () => SharePlus.instance.share(
                           ShareParams(
                             files: [XFile(s.imagePath)],
@@ -265,11 +280,13 @@ class _SavedTile extends StatelessWidget {
     required this.sizeOf,
     required this.onShare,
     required this.onDelete,
+    this.onInstall,
   });
   final SavedFirmware fw;
   final String Function(int) sizeOf;
   final VoidCallback onShare;
   final VoidCallback onDelete;
+  final VoidCallback? onInstall;
 
   @override
   Widget build(BuildContext context) {
@@ -289,6 +306,13 @@ class _SavedTile extends StatelessWidget {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          if (onInstall != null)
+            IconButton(
+              tooltip: 'Install (flash)',
+              icon: const Icon(Icons.system_update),
+              color: context.colors.primary,
+              onPressed: onInstall,
+            ),
           IconButton(
             tooltip: 'Export / share',
             icon: const Icon(Icons.ios_share),

@@ -56,6 +56,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             session: _conn.session!,
             firmware: _firmware,
             updater: _updater,
+            conn: _conn,
             title: 'HD 350BT',
             onDisconnect: _conn.disconnect,
           );
