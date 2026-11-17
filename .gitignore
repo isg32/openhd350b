@@ -53,3 +53,9 @@ app.*.map.json
 
 # Icon source zip (icons live in assets/icon + generated res/)
 /OpenHD350B-icons.zip
+
+# Local signing secrets — never commit
+.env
+*.jks
+*.keystore
+key.properties
