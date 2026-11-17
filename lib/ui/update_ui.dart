@@ -111,7 +111,7 @@ class UpdateCard extends StatelessWidget {
                             Icons.chevron_right,
                             color: context.colors.onSecondaryContainer,
                           ),
-			  const SizedBox(height: 14),
+                          const SizedBox(height: 14),
                         ],
                       ),
                     ),
