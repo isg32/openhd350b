@@ -50,3 +50,6 @@ app.*.map.json
 # Stray local firmware downloads / tool output
 /firmware/
 /fw_out/
+
+# Icon source zip (icons live in assets/icon + generated res/)
+/OpenHD350B-icons.zip
