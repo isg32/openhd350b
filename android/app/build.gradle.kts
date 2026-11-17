@@ -29,11 +29,30 @@ android {
         versionName = flutter.versionName
     }
 
+    // Release signing from environment variables (set by the CI release
+    // workflow). Over-the-air self-update needs every release signed with the
+    // same key. Falls back to debug signing locally when they are unset.
+    val keystoreFile = System.getenv("OPENHD_KEYSTORE_FILE")
+    val hasReleaseKeystore = keystoreFile != null && file(keystoreFile).exists()
+    if (hasReleaseKeystore) {
+        signingConfigs {
+            create("release") {
+                storeFile = file(keystoreFile!!)
+                storePassword = System.getenv("OPENHD_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("OPENHD_KEY_ALIAS") ?: "upload"
+                keyPassword = System.getenv("OPENHD_KEY_PASSWORD")
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = if (hasReleaseKeystore) {
+                signingConfigs.getByName("release")
+            } else {
+                // Debug keys locally, so `flutter run --release` still works.
+                signingConfigs.getByName("debug")
+            }
         }
     }
 }
