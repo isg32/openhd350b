@@ -1,0 +1,27 @@
+# True Wireless 3
+
+Protocol: **GAIAV3** · Article number: **509180**
+
+Reverse-engineered from Smart Control 4.7.0 `tw3.json`. 104 commands.
+
+| Command | GAIA (vendor/id) | Direction | Params |
+|---|---|---|---|
+| Upgrade_CommitReq (Get.Event) | `upgrade 0x0F` | dev→app | UINT16 |
+| Upgrade_CompleteInd (Get.Event) | `upgrade 0x12` | dev→app | UINT16 |
+| Upgrade_Error (Get.Event) | `upgrade 0x11` | dev→app | UINT16, UINT16 |
+| Upgrade_GaiaDataBytesRequest (Get.Event) | `upgrade 0x03` | dev→app | UINT16, UINT32, UINT32 |
+| Upgrade_GaiaIsValidationDone_Cfm (Get.Event) | `upgrade 0x17` | dev→app | UINT16, UINT16 |
+| Upgrade_TransferComplete (Get.Event) | `upgrade 0x0B` | dev→app | UINT16 |
+| Upgrade_Abort (Invocation.Command) | `upgrade 0x07` | app→dev | UINT16 |
+| Upgrade_Abort (Result.Response) | `upgrade 0x08` | dev→app | UINT16 |
+| Upgrade_CommitCfm (Invocation.Command) | `upgrade 0x10` | app→dev | UINT16, UINT8 |
+| Upgrade_ErrorConfirmation (Invocation.Command) | `upgrade 0x1F` | app→dev | UINT16, UINT16 |
+| Upgrade_GaiaData (Invocation.Command) | `upgrade 0x04` | app→dev | UINT16, UINT8, UINT8* |
+| Upgrade_GaiaIsValidationDone (Invocation.Command) | `upgrade 0x16` | app→dev | UINT16 |
+| Upgrade_GaiaStart (Invocation.Command) | `upgrade 0x01` | app→dev | UINT16 |
+| Upgrade_GaiaStart (Result.Response) | `upgrade 0x02` | dev→app | UINT16, UINT8, UINT16 |
+| Upgrade_GaiaStartData (Invocation.Command) | `upgrade 0x15` | app→dev | UINT16 |
+| Upgrade_GaiaSync (Invocation.Command) | `upgrade 0x13` | app→dev | UINT16, UINT32 |
+| Upgrade_GaiaSync (Result.Response) | `upgrade 0x14` | dev→app | UINT16, UINT8, UINT32, UINT8 |
+| Upgrade_ProceedToCommit (Invocation.Command) | `upgrade 0x0E` | app→dev | UINT16, UINT8 |
+| Upgrade_TransferComplete_Trigger (Invocation.Command) | `upgrade 0x0C` | app→dev | UINT16, UINT8 |

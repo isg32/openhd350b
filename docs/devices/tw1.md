@@ -1,0 +1,133 @@
+# True Wireless
+
+Protocol: **GAIA** · Article number: **508524**
+
+Reverse-engineered from Smart Control 4.7.0 `tw1.json`. 58 commands.
+
+| Command | GAIA (vendor/id) | Direction | Params |
+|---|---|---|---|
+| Battery_ChargerEvent (Get.Event) | `event 0x09` | dev→app | UINT8 |
+| Battery_ChargerEvent (Get.EventAck) | `event 0x09` | dev→app | — |
+| Battery_Percent (Get.Command) | `0x0494/0x0182` | — | — |
+| Battery_Percent (Get.Response) | `0x0494/0x8182` | dev→app | UINT8, UINT8* |
+| Battery_Percent (Get.Event) | `event 0x83` | dev→app | UINT8, UINT8 |
+| Battery_Percent (Get.EventAck) | `event 0x83` | dev→app | — |
+| ChargingStatus (Get.Command) | `0x0494/0x0185` | — | — |
+| ChargingStatus (Get.Response) | `0x0494/0x8185` | dev→app | UINT8, UINT8* |
+| Earbud_Status (Get.Command) | `0x0494/0x0183` | — | — |
+| Earbud_Status (Get.Response) | `0x0494/0x8183` | dev→app | UINT8, UINT8 |
+| Service_SystemReleaseVersion (Get.Command) | `0x0494/0x0281` | — | — |
+| Service_SystemReleaseVersion (Get.Response) | `0x0494/0x8281` | dev→app | UINT8*, UINT8*, UINT8* |
+| Setting_AudioPromptMode (Get.Command) | `0x0494/0x0781` | — | — |
+| Setting_AudioPromptMode (Get.Response) | `0x0494/0x8781` | dev→app | UINT8 |
+| Setting_AudioPromptMode (Set.Command) | `0x0494/0x0701` | app→dev | UINT8 |
+| Setting_AudioPromptMode (Set.Response) | `0x0494/0x8701` | app→dev | — |
+| Setting_AutoCall (Get.Command) | `0x0494/0x0684` | — | — |
+| Setting_AutoCall (Get.Response) | `0x0494/0x8684` | dev→app | UINT8 |
+| Setting_AutoCall (Set.Command) | `0x0494/0x0604` | app→dev | UINT8 |
+| Setting_AutoCall (Set.Response) | `0x0494/0x8604` | app→dev | — |
+| Setting_SmartPause (Get.Command) | `0x0494/0x0682` | — | — |
+| Setting_SmartPause (Get.Response) | `0x0494/0x8682` | dev→app | UINT8 |
+| Setting_SmartPause (Set.Command) | `0x0494/0x0602` | app→dev | UINT8 |
+| Setting_SmartPause (Set.Response) | `0x0494/0x8602` | app→dev | — |
+| Setting_VoiceAssistant (Get.Command) | `0x0494/0x0584` | — | — |
+| Setting_VoiceAssistant (Get.Response) | `0x0494/0x8584` | dev→app | UINT8 |
+| Setting_VoiceAssistant (Set.Command) | `0x0494/0x0504` | app→dev | UINT8 |
+| Setting_VoiceAssistant (Set.Response) | `0x0494/0x8504` | app→dev | — |
+| Sound_CustomEQControl (Get.Command) | `0x000a/0x02a0` | — | — |
+| Sound_CustomEQControl (Get.Response) | `0x000a/0x82A0` | dev→app | UINT8 |
+| Sound_CustomEQControl (Set.Command) | `0x000a/0x0220` | app→dev | UINT8 |
+| Sound_CustomEQControl (Set.Response) | `0x000a/0x8220` | app→dev | — |
+| Sound_CustomEQKnobX (Get.Command) | `0x0494/0x0685` | — | UINT16 |
+| Sound_CustomEQKnobX (Get.Response) | `0x0494/0x8685` | dev→app | UINT16 |
+| Sound_CustomEQKnobX (Set.Command) | `0x0494/0x0605` | app→dev | UINT16, UINT16 |
+| Sound_CustomEQKnobX (Set.Response) | `0x0494/0x8605` | app→dev | — |
+| Sound_CustomEQKnobY (Get.Command) | `0x0494/0x0685` | — | UINT16 |
+| Sound_CustomEQKnobY (Get.Response) | `0x0494/0x8685` | dev→app | UINT16 |
+| Sound_CustomEQKnobY (Set.Command) | `0x0494/0x0605` | app→dev | UINT16, UINT16 |
+| Sound_CustomEQKnobY (Set.Response) | `0x0494/0x8605` | app→dev | — |
+| TransparentHearing (Get.Command) | `0x0494/0x0785` | — | — |
+| TransparentHearing (Get.Response) | `0x0494/0x8785` | dev→app | UINT8 |
+| TransparentHearing (Get.Event) | `event 0x82` | dev→app | UINT8 |
+| TransparentHearing (Get.EventAck) | `event 0x82` | dev→app | — |
+| TransparentHearing (Set.Command) | `0x0494/0x0705` | app→dev | UINT8 |
+| TransparentHearing (Set.Response) | `0x0494/0x8705` | app→dev | — |
+| TransparentHearingMode (Get.Command) | `0x0494/0x0784` | — | — |
+| TransparentHearingMode (Get.Response) | `0x0494/0x8784` | dev→app | UINT8 |
+| TransparentHearingMode (Set.Command) | `0x0494/0x0704` | app→dev | UINT8 |
+| TransparentHearingMode (Set.Response) | `0x0494/0x8704` | app→dev | — |
+| UpgradeNotification_Status (Get.Event) | `event 0x81` | dev→app | UINT8, UINT8 |
+| UpgradeNotification_Status (Get.EventAck) | `event 0x81` | dev→app | — |
+| Upgrade_CommitReq (Get.Event) | `upgrade 0x0F` | dev→app | UINT16 |
+| Upgrade_CompleteInd (Get.Event) | `upgrade 0x12` | dev→app | UINT16 |
+| Upgrade_Error (Get.Event) | `upgrade 0x11` | dev→app | UINT16, UINT16 |
+| Upgrade_GaiaDataBytesRequest (Get.Event) | `upgrade 0x03` | dev→app | UINT16, UINT32, UINT32 |
+| Upgrade_GaiaIsValidationDone_Cfm (Get.Event) | `upgrade 0x17` | dev→app | UINT16, UINT16 |
+| Upgrade_TransferComplete (Get.Event) | `upgrade 0x0B` | dev→app | UINT16 |
+| Upgrade_VmupEvent (Get.Event) | `event 0x12` | dev→app | UINT8, UINT8* |
+| Upgrade_VmupEvent (Get.EventAck) | `event 0x12` | dev→app | — |
+| Upgrade_VmupEvent_SubscriptionCount (Get.Command) | `event 0x12` | — | — |
+| Upgrade_VmupEvent_SubscriptionCount (Get.Response) | `event 0x12` | dev→app | UINT8 |
+| Upgrade_VM_Control_Ack (Get.Event) | `0x000a/0x8642` | dev→app | UINT8* |
+| VoicePrompt_Language (Get.Command) | `0x000a/0x0292` | — | — |
+| VoicePrompt_Language (Get.Response) | `0x000a/0x8292` | dev→app | UINT8 |
+| VoicePrompt_Language (Set.Command) | `0x000a/0x0212` | app→dev | UINT8 |
+| VoicePrompt_Language (Set.Response) | `0x000a/0x8212` | app→dev | — |
+| Battery_ChargerEvent_Cancel (Invocation.Command) | `event 0x09` | app→dev | — |
+| Battery_ChargerEvent_Cancel (Result.Response) | `event 0x09` | dev→app | — |
+| Battery_ChargerEvent_GetStatus (Invocation.Command) | `event 0x09` | app→dev | — |
+| Battery_ChargerEvent_GetStatus (Result.Response) | `event 0x09` | dev→app | UINT8, UINT8 |
+| Battery_ChargerEvent_Register (Invocation.Command) | `event 0x09` | app→dev | — |
+| Battery_ChargerEvent_Register (Result.Response) | `event 0x09` | dev→app | — |
+| Battery_LevelChangedEvtCancel (Invocation.Command) | `event 0x83` | app→dev | — |
+| Battery_LevelChangedEvtCancel (Result.Response) | `event 0x83` | dev→app | — |
+| Battery_LevelChangedEvtRegister (Invocation.Command) | `event 0x83` | app→dev | — |
+| Battery_LevelChangedEvtRegister (Result.Response) | `event 0x83` | dev→app | — |
+| Debug_Retrieve_Full_PsKey (Invocation.Command) | `0x000a/0x0711` | app→dev | UINT16 |
+| Debug_Retrieve_Full_PsKey (Result.Response) | `0x000a/0x8711` | dev→app | UINT8, UINT16, UINT8* |
+| Debug_Retrieve_PsKey (Invocation.Command) | `0x000a/0x0710` | app→dev | UINT16 |
+| Debug_Retrieve_PsKey (Result.Response) | `0x000a/0x8710` | dev→app | UINT8, UINT16, UINT16, UINT8* |
+| Debug_Store_PsKey (Invocation.Command) | `0x000a/0x0712` | app→dev | UINT16, UINT8* |
+| Debug_Store_PsKey (Result.Response) | `0x000a/0x8712` | dev→app | — |
+| Get_Codec_Used (Invocation.Command) | `0x0494/0x0184` | app→dev | — |
+| Get_Codec_Used (Result.Response) | `0x0494/0x8184` | dev→app | UINT8 |
+| Get_Upgrade_Mode (Invocation.Command) | `0x0494/0x0283` | app→dev | — |
+| Get_Upgrade_Mode (Result.Response) | `0x0494/0x8283` | dev→app | UINT8, UINT16, UINT16 |
+| Power_State (Invocation.Command) | `0x000a/0x0204` | app→dev | UINT8 |
+| Power_State (Result.Response) | `0x000a/0x8204` | dev→app | — |
+| Service_FactoryReset (Invocation.Command) | `0x0494/0x0101` | app→dev | — |
+| Service_FactoryReset (Result.Response) | `0x0494/0x8101` | dev→app | — |
+| Sound_SetCustomEQ (Invocation.Command) | `0x000a/0x021b` | app→dev | UINT16* |
+| Sound_SetCustomEQ (Result.Response) | `0x000a/0x821b` | dev→app | — |
+| TransparentHearing_Cancel (Invocation.Command) | `event 0x82` | app→dev | — |
+| TransparentHearing_Cancel (Result.Response) | `event 0x82` | dev→app | — |
+| TransparentHearing_Register (Invocation.Command) | `event 0x82` | app→dev | — |
+| TransparentHearing_Register (Result.Response) | `event 0x82` | dev→app | — |
+| UpgradeNotification_Register (Invocation.Command) | `event 0x81` | app→dev | — |
+| UpgradeNotification_Register (Result.Response) | `event 0x81` | dev→app | — |
+| UpgradeNotification_StatusAck (Invocation.Command) | `event 0x81` | app→dev | — |
+| UpgradeNotification_Unregister (Invocation.Command) | `event 0x81` | app→dev | — |
+| UpgradeNotification_Unregister (Result.Response) | `event 0x81` | dev→app | — |
+| Upgrade_Abort (Invocation.Command) | `upgrade 0x07` | app→dev | UINT16 |
+| Upgrade_Abort (Result.Response) | `upgrade 0x08` | dev→app | UINT16 |
+| Upgrade_CommitCfm (Invocation.Command) | `upgrade 0x10` | app→dev | UINT16, UINT8 |
+| Upgrade_Enable (Invocation.Command) | `0x0494/0x0202` | app→dev | — |
+| Upgrade_Enable (Result.Response) | `0x0494/0x8202` | dev→app | UINT8 |
+| Upgrade_ErrorConfirmation (Invocation.Command) | `upgrade 0x1F` | app→dev | UINT16, UINT16 |
+| Upgrade_GaiaConnect (Invocation.Command) | `0x000a/0x0640` | app→dev | — |
+| Upgrade_GaiaConnect (Result.Response) | `0x000a/0x8640` | dev→app | — |
+| Upgrade_GaiaData (Invocation.Command) | `upgrade 0x04` | app→dev | UINT16, UINT8, UINT8* |
+| Upgrade_GaiaDisconnect (Invocation.Command) | `0x000a/0x0641` | app→dev | — |
+| Upgrade_GaiaDisconnect (Result.Response) | `0x000a/0x8641` | dev→app | — |
+| Upgrade_GaiaIsValidationDone (Invocation.Command) | `upgrade 0x16` | app→dev | UINT16 |
+| Upgrade_GaiaStart (Invocation.Command) | `upgrade 0x01` | app→dev | UINT16 |
+| Upgrade_GaiaStart (Result.Response) | `upgrade 0x02` | dev→app | UINT16, UINT8, UINT16 |
+| Upgrade_GaiaStartData (Invocation.Command) | `upgrade 0x15` | app→dev | UINT16 |
+| Upgrade_GaiaSync (Invocation.Command) | `upgrade 0x13` | app→dev | UINT16, UINT32 |
+| Upgrade_GaiaSync (Result.Response) | `upgrade 0x14` | dev→app | UINT16, UINT8, UINT32, UINT8 |
+| Upgrade_ProceedToCommit (Invocation.Command) | `upgrade 0x0E` | app→dev | UINT16, UINT8 |
+| Upgrade_TransferComplete_Trigger (Invocation.Command) | `upgrade 0x0C` | app→dev | UINT16, UINT8 |
+| Upgrade_VmupEvent_Cancel (Invocation.Command) | `event 0x12` | app→dev | — |
+| Upgrade_VmupEvent_Cancel (Result.Response) | `event 0x12` | dev→app | — |
+| Upgrade_VmupEvent_Register (Invocation.Command) | `event 0x12` | app→dev | — |
+| Upgrade_VmupEvent_Register (Result.Response) | `event 0x12` | dev→app | — |
