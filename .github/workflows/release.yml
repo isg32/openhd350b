@@ -15,7 +15,7 @@ name: Build and release
 on:
   push:
     branches:
-      - main
+      - master
 
 permissions:
   contents: write
