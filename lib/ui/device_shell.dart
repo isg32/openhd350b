@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../features/device/device_session.dart';
 import '../features/firmware/firmware_service.dart';
 import '../features/updates/app_updater.dart';
+import 'about_screen.dart';
 import 'dashboard_screen.dart';
 import 'debug_console_screen.dart';
 import 'eq_screen.dart';
@@ -91,6 +92,13 @@ class _DeviceShellState extends State<DeviceShell> {
                       onPressed: widget.onDisconnect,
                       icon: const Icon(Icons.bluetooth_disabled),
                     ),
+                  IconButton(
+                    tooltip: 'About',
+                    onPressed: () => Navigator.of(context).push(
+                      MaterialPageRoute(builder: (_) => const AboutScreen()),
+                    ),
+                    icon: const Icon(Icons.info_outline),
+                  ),
                   if (widget.updater != null)
                     PopupMenuButton<String>(
                       onSelected: (v) {
