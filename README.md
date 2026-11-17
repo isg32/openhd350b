@@ -20,10 +20,17 @@ Working against a real HD 350BT (firmware 5.8.0):
 - **Dashboard** — model, firmware, battery + charging, signal, audio mode, sidetone.
 - **Equalizer** — 3-band (Bass / Mid / Treble) with the device's real shelf-filter
   math, bass boost, and custom-EQ toggle, verified by ear on the device.
+- **Firmware** — list every cloud version, download, decrypt, md5-verify and save
+  any version to the phone; over-the-air app self-update from GitHub Releases.
 - **Debug console** — raw GAIA traffic, hex send, and a read-command verification sweep.
 
-Planned: firmware download + decrypt + local version control, then the GAIA
-VM-Upgrade installer.
+Planned: the GAIA VM-Upgrade firmware installer.
+
+## Screenshots
+
+| Device | Equalizer | Firmware |
+|---|---|---|
+| ![Device dashboard](docs/screenshots/device.png) | ![Equalizer](docs/screenshots/eq.png) | ![Firmware](docs/screenshots/firmware.png) |
 
 ## How it works
 
