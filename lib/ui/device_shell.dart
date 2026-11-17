@@ -1,68 +1,61 @@
 import 'package:flutter/material.dart';
 
-import '../core/gaia/gaia_client.dart';
 import '../features/device/device_session.dart';
+import '../features/firmware/firmware_service.dart';
 import 'dashboard_screen.dart';
 import 'debug_console_screen.dart';
 import 'eq_screen.dart';
+import 'firmware_screen.dart';
 
-/// Bottom-nav shell holding the dashboard, EQ, and debug console for one
-/// connected device. Owns the [DeviceSession] lifecycle.
+/// Bottom-nav shell for a connected device: dashboard, EQ, firmware, console.
+/// The [session] is owned by the caller (the connection controller).
 class DeviceShell extends StatefulWidget {
   const DeviceShell({
     super.key,
-    required this.client,
+    required this.session,
+    required this.firmware,
     required this.title,
-    this.firmwareFromGatt,
+    this.onDisconnect,
   });
 
-  final GaiaClient client;
+  final DeviceSession session;
+  final FirmwareService firmware;
   final String title;
-  final String? firmwareFromGatt;
+  final VoidCallback? onDisconnect;
 
   @override
   State<DeviceShell> createState() => _DeviceShellState();
 }
 
 class _DeviceShellState extends State<DeviceShell> {
-  late final DeviceSession _session;
   int _index = 0;
-
-  @override
-  void initState() {
-    super.initState();
-    _session = DeviceSession(
-      widget.client,
-      firmwareFromGatt: widget.firmwareFromGatt,
-    );
-    _session.refreshAll();
-  }
-
-  @override
-  void dispose() {
-    _session.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
     final pages = [
-      DashboardScreen(session: _session),
-      EqScreen(session: _session),
-      DebugConsoleScreen(client: widget.client, title: widget.title),
+      DashboardScreen(session: widget.session),
+      EqScreen(session: widget.session),
+      FirmwareScreen(firmware: widget.firmware, session: widget.session),
+      DebugConsoleScreen(client: widget.session.client, title: widget.title),
     ];
-    const titles = ['Device', 'Equalizer', 'Console'];
+    const titles = ['Device', 'Equalizer', 'Firmware', 'Console'];
     return Scaffold(
-      appBar: _index == 2
+      appBar: _index == 3
           ? null // console has its own app bar
           : AppBar(
               title: Text(titles[_index]),
               actions: [
                 IconButton(
                   tooltip: 'Refresh',
-                  onPressed: _session.refreshAll,
+                  onPressed: widget.session.refreshAll,
                   icon: const Icon(Icons.refresh),
                 ),
+                if (widget.onDisconnect != null)
+                  IconButton(
+                    tooltip: 'Disconnect',
+                    onPressed: widget.onDisconnect,
+                    icon: const Icon(Icons.bluetooth_disabled),
+                  ),
               ],
             ),
       body: IndexedStack(index: _index, children: pages),
@@ -79,6 +72,11 @@ class _DeviceShellState extends State<DeviceShell> {
             icon: Icon(Icons.tune_outlined),
             selectedIcon: Icon(Icons.tune),
             label: 'EQ',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.system_update_outlined),
+            selectedIcon: Icon(Icons.system_update),
+            label: 'Firmware',
           ),
           NavigationDestination(
             icon: Icon(Icons.terminal_outlined),

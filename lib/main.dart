@@ -1,22 +1,23 @@
 import 'package:flutter/material.dart';
 
-import 'ui/scan_screen.dart';
+import 'ui/home_screen.dart';
 import 'ui/theme.dart';
 
 void main() {
-  runApp(const OpenSennheiserApp());
+  runApp(const OpenHd350bApp());
 }
 
-class OpenSennheiserApp extends StatelessWidget {
-  const OpenSennheiserApp({super.key});
+class OpenHd350bApp extends StatelessWidget {
+  const OpenHd350bApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'OpenSennheiser',
+      title: 'OpenHD350B',
+      debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
-      home: const ScanScreen(),
+      home: const HomeScreen(),
     );
   }
 }

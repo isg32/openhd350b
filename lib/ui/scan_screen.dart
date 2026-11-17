@@ -5,13 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import '../core/gaia/gaia_client.dart';
 import '../core/gaia/gaia_constants.dart';
-import '../core/transport/ble_transport.dart';
-import 'device_shell.dart';
 
 class ScanScreen extends StatefulWidget {
-  const ScanScreen({super.key});
+  const ScanScreen({super.key, required this.onPicked});
+
+  /// Called with the chosen device; the caller owns the connection. The screen
+  /// pops itself after invoking this.
+  final Future<void> Function(BluetoothDevice) onPicked;
 
   @override
   State<ScanScreen> createState() => _ScanScreenState();
@@ -100,32 +101,13 @@ class _ScanScreenState extends State<ScanScreen> {
       _connectingId = device.remoteId.str;
       _error = null;
     });
-    final transport = BleGaiaTransport(device);
     try {
-      await transport.connect();
-      if (!mounted) return;
-      final client = GaiaClient(transport);
-      // The transport reads the standard GATT firmware string on connect.
-      final fw = transport.discoveryReport
-          .where((l) => l.startsWith('Firmware revision:'))
-          .map((l) => l.split(':').last.trim())
-          .where((v) => v.isNotEmpty)
-          .firstOrNull;
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (_) => DeviceShell(
-            client: client,
-            firmwareFromGatt: fw,
-            title: device.platformName.isEmpty
-                ? device.remoteId.str
-                : device.platformName,
-          ),
-        ),
-      );
-      await client.dispose();
-      await transport.disconnect();
+      // The caller (connection controller) owns connecting; we just hand off
+      // the chosen device and close this picker.
+      if (mounted) Navigator.of(context).pop();
+      await widget.onPicked(device);
     } catch (e) {
-      setState(() => _error = 'Connect failed: $e');
+      if (mounted) setState(() => _error = 'Connect failed: $e');
     } finally {
       if (mounted) setState(() => _connectingId = null);
     }
@@ -143,7 +125,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('OpenSennheiser'),
+        title: const Text('OpenHD350B'),
         actions: [
           Row(
             children: [
