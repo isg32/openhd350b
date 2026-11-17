@@ -6,7 +6,7 @@ import '../features/updates/app_updater.dart';
 import 'device_shell.dart';
 import 'scan_screen.dart';
 import 'theme.dart';
-import 'update_banner.dart';
+import 'update_ui.dart';
 
 /// App home. Auto-connects to a bonded HD 350BT on launch and shows the device
 /// shell once connected; otherwise shows a connect prompt. A thin update banner
@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        UpdateBanner(updater: _updater),
+        UpdateCard(updater: _updater),
         Expanded(
           child: AnimatedBuilder(
             animation: _conn,

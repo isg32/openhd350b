@@ -8,6 +8,7 @@ import 'about_screen.dart';
 import 'dashboard_screen.dart';
 import 'debug_console_screen.dart';
 import 'eq_screen.dart';
+import 'update_ui.dart';
 import 'firmware_screen.dart';
 
 /// Bottom-nav shell for a connected device: dashboard, EQ, firmware, console.
@@ -101,9 +102,12 @@ class _DeviceShellState extends State<DeviceShell> {
                   ),
                   if (widget.updater != null)
                     PopupMenuButton<String>(
-                      onSelected: (v) {
+                      onSelected: (v) async {
                         if (v == 'update') {
-                          widget.updater!.check(manual: true);
+                          await widget.updater!.check(manual: true);
+                          if (context.mounted) {
+                            showUpdateSheet(context, widget.updater!);
+                          }
                         }
                       },
                       itemBuilder: (_) => const [
