@@ -6,7 +6,6 @@ import '../features/device/device_session.dart';
 import '../features/firmware/firmware_models.dart';
 import '../features/firmware/firmware_service.dart';
 import 'components.dart';
-import 'firmware_install_screen.dart';
 import 'theme.dart';
 
 class FirmwareScreen extends StatefulWidget {
@@ -151,16 +150,8 @@ class _FirmwareScreenState extends State<FirmwareScreen> {
                       _SavedTile(
                         fw: s,
                         sizeOf: _size,
-                        onInstall: (widget.conn != null && s.md5Verified)
-                            ? () => Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (_) => FirmwareInstallScreen(
-                                    conn: widget.conn!,
-                                    imagePath: s.imagePath,
-                                    version: s.version,
-                                  ),
-                                ),
-                              )
+                        onInstall: s.md5Verified
+                            ? () => _explainInstallUnavailable(context)
                             : null,
                         onShare: () => SharePlus.instance.share(
                           ShareParams(
@@ -191,6 +182,31 @@ class _FirmwareScreenState extends State<FirmwareScreen> {
       },
     );
   }
+}
+
+void _explainInstallUnavailable(BuildContext context) {
+  showDialog<void>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      icon: const Icon(Icons.bluetooth_disabled),
+      title: const Text('Flashing not available over Bluetooth LE'),
+      content: const Text(
+        'The HD 350BT only accepts a firmware update over a Classic '
+        'Bluetooth (RFCOMM) link, which this app does not support yet.\n\n'
+        'Over Bluetooth LE the device caps packets far below what its '
+        'firmware updater needs and rejects the transfer, so flashing cannot '
+        'complete. Downloading, decrypting and verifying firmware already '
+        'works for study and backup, and nothing here can harm the '
+        'headphones.',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(ctx).pop(),
+          child: const Text('OK'),
+        ),
+      ],
+    ),
+  );
 }
 
 class _VersionTile extends StatelessWidget {
@@ -308,9 +324,9 @@ class _SavedTile extends StatelessWidget {
         children: [
           if (onInstall != null)
             IconButton(
-              tooltip: 'Install (flash)',
+              tooltip: 'Install (why unavailable)',
               icon: const Icon(Icons.system_update),
-              color: context.colors.primary,
+              color: context.colors.onSurfaceVariant,
               onPressed: onInstall,
             ),
           IconButton(
@@ -344,8 +360,9 @@ class _InstallNote extends StatelessWidget {
             Expanded(
               child: Text(
                 'Any version can be downloaded, decrypted and md5-verified for '
-                'study or backup. Installing (flashing) over GAIA VM-Upgrade is '
-                'the next milestone and will be gated behind safety checks.',
+                'study or backup. Installing (flashing) is not available: the '
+                'HD 350BT only accepts firmware over a Classic Bluetooth '
+                '(RFCOMM) connection, which this app does not support yet.',
                 style: context.texts.bodySmall?.copyWith(
                   color: context.colors.onSurfaceVariant,
                 ),
