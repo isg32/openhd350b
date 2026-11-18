@@ -69,6 +69,18 @@ class BleGaiaTransport implements GaiaTransport {
         }
       });
 
+      // The connect-time `mtu:` request is unreliable on Android; ask again
+      // explicitly. A larger ATT MTU means larger firmware-upgrade packets,
+      // which the device needs (it rejects both small fragments and long
+      // writes). Best-effort: some stacks ignore it.
+      _log('MTU after connect: ${device.mtuNow}');
+      try {
+        final granted = await device.requestMtu(512);
+        _log('MTU after explicit request: $granted');
+      } catch (e) {
+        _log('requestMtu failed: $e');
+      }
+
       final services = await device.discoverServices();
       _log('MTU: ${device.mtuNow}');
       for (final s in services) {
@@ -209,6 +221,8 @@ class BleGaiaTransport implements GaiaTransport {
     if (c == null || _current != TransportState.connected) {
       throw TransportException('Not connected');
     }
+    // The device's GATT server rejects long (queued) writes
+    // (GATT_REQUEST_NOT_SUPPORTED), so a PDU must fit the negotiated ATT MTU.
     if (pdu.length > mtu - 3) {
       throw TransportException(
         'PDU of ${pdu.length} bytes exceeds MTU payload ${mtu - 3}',

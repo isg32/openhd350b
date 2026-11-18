@@ -96,37 +96,45 @@ class GaiaClient {
     int commandId, {
     Uint8List? payload,
     Duration timeout = const Duration(seconds: 5),
+    // Lets a caller (the firmware upgrade) send a payload larger than the ATT
+    // MTU allows, relying on the transport's GATT long write. Defaults to the
+    // MTU-derived limit for every ordinary command.
+    int? maxPayloadOverride,
   }) async {
-    if ((payload?.length ?? 0) > maxPayload) {
-      throw ArgumentError(
-        'Payload ${payload!.length} B exceeds max $maxPayload B',
-      );
+    final limit = maxPayloadOverride ?? maxPayload;
+    if ((payload?.length ?? 0) > limit) {
+      throw ArgumentError('Payload ${payload!.length} B exceeds max $limit B');
     }
     final bytes = codec.encodeCommand(vendorId, commandId, payload);
     final key = (vendorId << 16) | commandId;
     final completer = Completer<GaiaMessage>();
     _pending.putIfAbsent(key, Queue.new).add(completer);
-    // Attach the listener before writing so a fast reply (or error) is
-    // never an unhandled future error.
-    final result = completer.future.timeout(
-      timeout,
-      onTimeout: () {
+    // A timer completes the single completer directly, rather than
+    // `future.timeout()` which detaches on timeout and leaves a later error
+    // on the original future unhandled.
+    final timer = Timer(timeout, () {
+      if (!completer.isCompleted) {
         _forget(key, completer);
-        throw TimeoutException(
-          'No reply to vendor 0x${vendorId.toRadixString(16)} '
-          'cmd 0x${commandId.toRadixString(16)}',
-          timeout,
+        completer.completeError(
+          TimeoutException(
+            'No reply to vendor 0x${vendorId.toRadixString(16)} '
+            'cmd 0x${commandId.toRadixString(16)}',
+            timeout,
+          ),
         );
-      },
-    );
+      }
+    });
     try {
       await sendRaw(bytes);
-    } catch (_) {
+    } catch (e) {
       _forget(key, completer);
-      result.ignore();
-      rethrow;
+      if (!completer.isCompleted) completer.completeError(e);
     }
-    return result;
+    try {
+      return await completer.future;
+    } finally {
+      timer.cancel();
+    }
   }
 
   void _forget(int key, Completer<GaiaMessage> c) {

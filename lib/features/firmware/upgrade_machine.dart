@@ -90,8 +90,16 @@ class UpgradeMachine {
   UpgradeError? _pendingError;
   var _dataOffset = 0;
   var _aborted = false;
+  var _started = false;
 
   void _onPdu(VmPdu pdu) {
+    final w0 = _waiter;
+    debugPrint(
+      '[upgrade] << opcode=0x${pdu.opcode.toRadixString(16)} '
+      'len=${pdu.payload.length} '
+      '${w0 != null ? "waiting=0x${w0.$1.toRadixString(16)}" : "no-waiter"}'
+      '${w0 != null && w0.$1 != pdu.opcode && pdu.opcode != UpOp.errorInd ? " -> BUFFERED" : ""}',
+    );
     if (pdu.opcode == UpOp.errorInd) {
       final err = UpgradeError(
         'device error 0x${pdu.errorCode.toRadixString(16)}',
@@ -115,6 +123,11 @@ class UpgradeMachine {
   }
 
   void _emit(UpgradePhase p, {double percent = 0, String? message}) {
+    debugPrint(
+      '[upgrade] phase=${p.name}'
+      '${percent > 0 ? ' ${(percent * 100).toStringAsFixed(1)}%' : ''}'
+      '${message != null ? ' ($message)' : ''}',
+    );
     if (!_progress.isClosed) {
       _progress.add(UpgradeProgress(p, percent: percent, message: message));
     }
@@ -151,11 +164,27 @@ class UpgradeMachine {
   Future<bool> run() async {
     _sub = transport.events.listen(_onPdu);
     try {
-      await _checkBatteries();
+      // A dry run writes nothing and takes seconds, so the battery guard
+      // (which protects the ~20-minute real flash) doesn't apply.
+      if (!dryRun) await _checkBatteries();
       _emit(UpgradePhase.connecting);
-      await transport.enable();
       await transport.registerEvents();
-      await transport.connect();
+      // Connect and enable are best-effort: the device may answer "already
+      // connected / not needed" (status 6 / 1). What actually gates the
+      // upgrade is SYNC + START below, so a non-zero ack here is not fatal.
+      for (final step in [
+        ('connect', transport.connect),
+        ('enable', transport.enable),
+      ]) {
+        try {
+          await step.$2();
+        } catch (e) {
+          debugPrint(
+            '[upgrade] ${step.$1} (best-effort) non-OK, continuing: $e',
+          );
+        }
+      }
+      _started = true; // past here, an abort has something to abort
       await _drive();
       if (_aborted) return false;
       _emit(UpgradePhase.done);
@@ -194,10 +223,12 @@ class UpgradeMachine {
       await transport.sendControl(VmPdu.syncReq(fileId));
       final syncCfm = await _await(UpOp.syncCfm);
       final resume = syncCfm.syncResumePoint;
+      debugPrint('[upgrade] SYNC_CFM resumePoint=$resume');
 
       _emit(UpgradePhase.starting);
       await transport.sendControl(VmPdu.startReq());
       final startCfm = await _await(UpOp.startCfm);
+      debugPrint('[upgrade] START_CFM status=${startCfm.startStatus}');
       if (startCfm.startStatus != 0) {
         throw UpgradeError('START refused (status ${startCfm.startStatus})');
       }
@@ -244,15 +275,29 @@ class UpgradeMachine {
     _dataOffset = 0;
     _emit(UpgradePhase.transferring, percent: 0);
     await transport.sendControl(VmPdu.startDataReq());
+    var lastLoggedPct = -1;
     while (_dataOffset < image.length) {
-      final req = (await _await(UpOp.dataBytesReq)).dataBytesReq;
+      // The device paces the transfer by requesting bytes; it can pause to
+      // write flash, so give it room before timing out.
+      final req = (await _await(UpOp.dataBytesReq,
+              timeout: const Duration(seconds: 60)))
+          .dataBytesReq;
       if (req == null) throw UpgradeError('bad DATA_BYTES_REQ');
+      debugPrint('[upgrade] DATA_BYTES_REQ numBytes=${req.numBytes} '
+          'offset=${req.offset} at dataOffset=$_dataOffset');
       // Relative offset adjustment (resume / retransmit); usually 0.
       if (req.offset != 0) {
         _dataOffset = (_dataOffset + req.offset <= image.length)
             ? _dataOffset + req.offset
             : 0;
       }
+      // Fulfil the whole request in maxChunk-sized packets, matching the
+      // official app's `remainingBytesToSend` recursion. NOTE: this cannot
+      // complete over BLE on the HD 350BT — the device caps the ATT MTU at 64
+      // and rejects long writes, so a request larger than one packet (e.g. the
+      // 268-byte request after the header) must be fragmented, and the device's
+      // BLE VM-Upgrade path stalls on that. Firmware flashing needs an
+      // RFCOMM/SPP transport (how the official app does it). See handover.md.
       var want = req.numBytes;
       while (want > 0 && _dataOffset < image.length) {
         final take = [
@@ -269,7 +314,12 @@ class UpgradeMachine {
         await transport.sendControl(VmPdu.data(last ? 1 : 0, chunk));
         _dataOffset += take;
         want -= take;
-        _emit(UpgradePhase.transferring, percent: _dataOffset / image.length);
+        final pct = _dataOffset / image.length;
+        final whole = (pct * 100).floor();
+        if (whole > lastLoggedPct) {
+          lastLoggedPct = whole;
+          _emit(UpgradePhase.transferring, percent: pct);
+        }
         if (last) return;
       }
     }
@@ -311,6 +361,9 @@ class UpgradeMachine {
     if (_aborted) return;
     _aborted = true;
     _emit(UpgradePhase.failed, message: reason);
+    // Only abort if the upgrade actually started; otherwise there is nothing
+    // in progress and ABORT would just hit the device in the wrong state.
+    if (!_started) return;
     try {
       await transport.sendControl(VmPdu.abortReq());
     } catch (_) {

@@ -66,22 +66,48 @@ class GaiaUpgradeTransport implements UpgradeTransport {
     _transport = null;
   }
 
+  Future<void> _ensureSession() async {
+    if (_client == null) await _openSession();
+  }
+
   Future<void> _send(int commandId, [Uint8List? payload]) async {
-    final c = _client;
-    if (c == null) throw UpgradeError('not connected');
-    await c.request(UpgradeGaia.vendor, commandId, payload: payload);
+    await _ensureSession();
+    // DATA packets exceed the ATT MTU; allow the oversized payload so the
+    // transport can send it with a GATT long write.
+    await _client!.request(
+      UpgradeGaia.vendor,
+      commandId,
+      payload: payload,
+      maxPayloadOverride: 512,
+    );
   }
 
   @override
   Future<void> connect() async {
-    await _openSession();
-    await _send(UpgradeGaia.connect);
+    await _ensureSession();
+    // Best-effort: the device may answer "already connected" (status 6). Catch
+    // the ack error at the source so it can't dangle as an unhandled future.
+    try {
+      await _send(UpgradeGaia.connect);
+    } on GaiaErrorResponse catch (e) {
+      debugPrint(
+        '[upgrade] connect ack status ${e.message.status} (continuing)',
+      );
+    }
   }
 
   @override
   Future<void> enable() async {
-    // Upgrade_Enable is vendor 0x0494, not 0x000A.
-    await _client!.request(UpgradeGaia.sennheiserVendor, UpgradeGaia.enable);
+    // Upgrade_Enable is vendor 0x0494. Best-effort: the device may answer
+    // "not needed" (status 1). Catch the ack error at the source.
+    await _ensureSession();
+    try {
+      await _client!.request(UpgradeGaia.sennheiserVendor, UpgradeGaia.enable);
+    } on GaiaErrorResponse catch (e) {
+      debugPrint(
+        '[upgrade] enable ack status ${e.message.status} (continuing)',
+      );
+    }
   }
 
   @override

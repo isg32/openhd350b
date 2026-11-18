@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:battery_plus/battery_plus.dart';
@@ -51,30 +52,38 @@ class _FirmwareInstallScreenState extends State<FirmwareInstallScreen> {
       _error = null;
     });
     var ok = false;
-    try {
-      final image = await File(widget.imagePath).readAsBytes();
-      await widget.conn.runExclusive((device) async {
-        final transport = GaiaUpgradeTransport(device);
-        final machine = UpgradeMachine(
-          transport: transport,
-          image: image,
-          phoneBatteryPercent: _phoneBattery,
-          dryRun: dryRun,
-        );
-        final sub = machine.progress.listen((p) {
-          if (mounted) setState(() => _progress = p);
+    // A guarded zone so a stray async error from a best-effort GAIA ack can
+    // never surface as an unhandled exception during the long flash.
+    final done = Completer<void>();
+    runZonedGuarded(() async {
+      try {
+        final image = await File(widget.imagePath).readAsBytes();
+        await widget.conn.runExclusive((device) async {
+          final transport = GaiaUpgradeTransport(device);
+          final machine = UpgradeMachine(
+            transport: transport,
+            image: image,
+            phoneBatteryPercent: _phoneBattery,
+            dryRun: dryRun,
+          );
+          final sub = machine.progress.listen((p) {
+            if (mounted) setState(() => _progress = p);
+          });
+          try {
+            ok = await machine.run();
+          } finally {
+            await sub.cancel();
+            await machine.dispose();
+            await transport.dispose();
+          }
         });
-        try {
-          ok = await machine.run();
-        } finally {
-          await sub.cancel();
-          await machine.dispose();
-          await transport.dispose();
-        }
-      });
-    } catch (e) {
-      _error = '$e';
-    }
+      } catch (e) {
+        _error = '$e';
+      } finally {
+        if (!done.isCompleted) done.complete();
+      }
+    }, (e, _) => debugPrint('[upgrade] stray async error ignored: $e'));
+    await done.future;
     if (!mounted) return;
     setState(
       () =>
